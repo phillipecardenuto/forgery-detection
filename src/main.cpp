@@ -151,14 +151,10 @@ int main(int argc, char **argv) {
 	visual.assign(detectionMask.begin(), detectionMask.end());
 	rescale(visual, visualSize);
 	string temp_path;
-	if (mtd == 0){ // ZERNIKE
-		temp_path = output_path + "/ZERNIKE_pos.png";
-	}
+	if (output_path.compare("") == 0)
+		temp_path = "filteredMask.png"
 	else
-	{
-		temp_path = output_path + "/SIFT_pos.png";
-	}
-	
+		temp_path = output_path 
 	saveImage(temp_path.c_str(), visual, visualSize, 0., 255.); 
 
 	// Compute the final decision

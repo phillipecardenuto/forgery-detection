@@ -152,9 +152,9 @@ int main(int argc, char **argv) {
 	rescale(visual, visualSize);
 	string temp_path;
 	if (output_path.compare("") == 0)
-		temp_path = "filteredMask.png"
+		temp_path = "filteredMask.png";
 	else
-		temp_path = output_path 
+		temp_path = output_path;
 	saveImage(temp_path.c_str(), visual, visualSize, 0., 255.); 
 
 	// Compute the final decision

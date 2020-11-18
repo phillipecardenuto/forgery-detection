@@ -20,7 +20,7 @@ The code is compilable on Unix/Linux and Mac OS.
 Automated compilation requires the cmake and make programs.
 
 - Library. 
-This code requires the libpng, libtiff, libjpeg and cblas library.
+This code requires the libpng, libtiff, libjpeg and cblas library (libopenblas-dev).
 
 - Image format. 
 Only the TIFF, JPEG and PNG formats are supported. 

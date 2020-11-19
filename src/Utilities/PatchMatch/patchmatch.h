@@ -84,6 +84,18 @@ class Patchmatch
 		 * @brief Apply a random search PatchMatch step to the current displacement map
 		 **/
 		void randomSearch();
+
+		/*
+		* @assign the value of matches to a vector
+		*/
+		void get_detected_matches(std::vector<int>& copy, std::vector<bool>&detectionMask){
+				copy.assign(matches.begin(),matches.end());
+				for(int i=0; i<copy.size();i++){
+					if(!detectionMask[i]){
+						copy[i] =0;
+					}
+				}
+		}
 	private:
 		/**
 		 * @brief Propagate to currentId the match from direction using a zero-order propagation

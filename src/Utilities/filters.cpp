@@ -19,6 +19,8 @@
 
 
 #include "filters.h"
+#include <fstream>
+#include <iostream>
 
 int computeCircularDomain(std::vector<bool>& domain, int radius)
 {
@@ -158,7 +160,8 @@ void sizeFilter(std::vector<bool>& detectionMask, ImageSize imSize, int minCompS
 	}
 }
 
-void errorDetectionFilter(std::vector<bool>& detectionMask, const std::vector<int>& dispX, const std::vector<int>& dispY, ImageSize imSize, int radius, float th_e, int sp, std::vector<float>& visual)
+void errorDetectionFilter(std::vector<bool>& detectionMask, const std::vector<int>& dispX, const std::vector<int>& dispY, 
+						ImageSize imSize, int radius, float th_e, int sp, std::vector<float>& visual)
 {
 	std::vector<bool> domain;
 	int sizeDomain = computeCircularDomain(domain, radius);
@@ -252,6 +255,7 @@ void errorDetectionFilter(std::vector<bool>& detectionMask, const std::vector<in
 	for(int i = 0; i < errors.size(); ++i)
 		detectionMask[i] = (errors[i] < th_e);
 
+
 	// Remove the boundary
 	// Bottom
 	for(int x = 0; x < imSize.width; ++x)
@@ -317,5 +321,87 @@ void symmetrizationFilter(std::vector<bool>& detectionMask, const std::vector<in
 	{
 		// Symmetrize the detections
 		detectionMask[id + dispX[id] + dispY[id]*imSize.width] = (backup[id] || backup[id + dispX[id] + dispY[id]*imSize.width]);
+	}
+}
+
+void labelDetectionMask( const char* outname, std::vector<float>& detectionMask, \
+						std::vector<int>& matchIds, ImageSize imSize, ImageSize visualSize, int radius){
+
+
+
+	std::vector<int> detectionMapIds(matchIds.size(),0);
+	std::vector<bool> domain;
+	computeCircularDomain(domain, radius-1);
+	int matchidI;
+	int widthDomain = 2*radius+1;
+	int max_label = 0;
+	int label;
+	int imgx, imgy;
+	int vx, vy;
+
+	for(int id=0; id<matchIds.size();id++){
+		matchidI=matchIds[id];
+		if(detectionMask[id] && matchidI && !detectionMapIds[id])
+		{
+			max_label++;
+
+			fillObjectWithLabel(detectionMask,detectionMapIds, visualSize , id, max_label, 2);
+			fillObjectWithLabel(detectionMask,detectionMapIds, visualSize , matchidI, max_label, 2);
+
+		}
+	}
+
+	std::vector<int> writeMap(imSize.wh ,0);
+	for(int i=0; i<visualSize.wh; i++){
+			vx = i % visualSize.width;
+			vy = i / visualSize.width;
+			writeMap[vx + vy*imSize.width] = detectionMapIds[vx + vy*visualSize.width];
+	}
+
+
+	std::ofstream outFile;
+	outFile.open(outname, std::ios::binary);
+	for (int i = 0; i < writeMap.size(); i++)
+		outFile.write(reinterpret_cast<const char *>(&writeMap[i]), sizeof(int));
+	outFile.close();
+
+}
+
+/*
+	Insert the same label inside a conncected componnet of an image
+*/
+void fillObjectWithLabel(std::vector<float>& detectionMask, std::vector<int>& detectionMapIds, \
+ ImageSize imSize, int position, int label, int radius )
+{
+	std::vector<bool> visited(detectionMask.size(), false);
+
+	int id ;
+	int px;
+	int py;
+	std::stack<int> stack;
+	stack.push(position);
+
+	std::vector<bool> domain;
+	computeCircularDomain(domain, radius-1);
+	int widthDomain = 2*radius+1;
+
+	while (!stack.empty())
+	{
+		id = stack.top();
+		stack.pop();
+		if(!visited[id] && detectionMask[id])
+		{
+			visited[id] = true;
+			detectionMapIds[id] = label;
+
+			px = id % imSize.width;
+			py = id / imSize.width;
+
+			for(int x = std::max(px-radius,0), dx = x-px+radius; x < std::min(px+radius+1, (int)imSize.width); ++x, ++dx) 
+			for(int y = std::max(py-radius,0), dy = y-py+radius; y < std::min(py+radius+1, (int)imSize.height); ++y, ++dy) 
+				if(domain[dx+widthDomain*dy] )
+					if(detectionMask[x+imSize.width*y] && !visited[x+imSize.width*y])
+						stack.push(x+imSize.width*y);
+		}
 	}
 }

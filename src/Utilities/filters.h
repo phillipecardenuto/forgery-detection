@@ -86,4 +86,23 @@ void minDispFilter(std::vector<bool>& detectionMask, const std::vector<int>& dis
 void symmetrizationFilter(std::vector<bool>& detectionMask, const std::vector<int>& dispX, const std::vector<int>& dispY, ImageSize imSize);
 
 
+/**
+ * @brief Label each detection region inserting the same id to its matched region
+ *
+ * @param detectionMask: detection mask containing boolean map of the detection region
+ * @param matchIds: matchIds contain the Ids of each matched pixel
+ **/
+void labelDetectionMask(const char* outname, std::vector<float>& detectionMask,std::vector<int>& matchIds, ImageSize imSize, ImageSize visualSize, int radius);
+
+/**
+ * @ brief Fill a object region (connected component) with a label
+ * 
+ * @param detectionMask: detection Mask containing the detected regions
+ * @param detectionMapIds: Map in which the label will be propagate to
+ * @param label: label of the region
+ * @param radius: radius of the considerate neighborhood during the label propagation method
+ **/
+void fillObjectWithLabel(std::vector<float>& detectionMask, std::vector<int>& detectionMapIds, ImageSize imSize, int position, int label, int radius );
+
 #endif // FILTERS_H_INCLUDED
+

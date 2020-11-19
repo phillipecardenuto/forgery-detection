@@ -25,6 +25,8 @@
 #include "Utilities/filters.h"
 #include "Utilities/tools.h"
 
+
+
 int main(int argc, char **argv) {
 
 	// Read parameters
@@ -125,6 +127,8 @@ int main(int argc, char **argv) {
 
 	/// compute error detection map
 	errorDetectionFilter(detectionMask, dispX, dispY, visualSize, radius_e, th_e, sp, visual); 
+	std::vector<int> matchIds(detectionMask.size()); // Label of each detected object
+	pm.get_detected_matches(matchIds,detectionMask);
 
 	// Save the error as well as the initial detection mask
 //	rescale(visual, visualSize);
@@ -150,21 +154,39 @@ int main(int argc, char **argv) {
 	// Save the final detection mask
 	visual.assign(detectionMask.begin(), detectionMask.end());
 	rescale(visual, visualSize);
-	string temp_path;
-	if (output_path.compare("") == 0)
-		temp_path = "filteredMask.png";
-	else
-		temp_path = output_path;
-	saveImage(temp_path.c_str(), visual, visualSize, 0., 255.); 
+	//string temp_path;
+	//if (output_path.compare("") == 0)
+	//	temp_path = "filteredMask.png";
+	//else
+	//	temp_path = output_path;
+	//saveImage(temp_path.c_str(), visual, visualSize, 0., 255.); 
 
 	// Compute the final decision
-	bool forgery = false;
-	for(int i = 0; i < detectionMask.size(); ++i)
-		if(detectionMask[i])
-		{
-			forgery = true;
-			break;
-		}
+	//bool forgery = false;
+	//for(int i = 0; i < detectionMask.size(); ++i)
+	//	if(detectionMask[i])
+	//	{
+	//		forgery = true;
+	//		break;
+	//	}
+
+	//Save result image in a binary file in vector shape
+	string temp_path;
+	if (output_path.compare("") == 0){
+		if (mtd)
+		temp_path = "sift_result.bin";
+		else
+		temp_path = "zernike_result.bin";
+	}
+	else
+	{
+		temp_path = output_path;
+	}
+	
+
+	labelDetectionMask(temp_path.c_str(),visual, matchIds, imSize, visualSize, radius_d);
+	//function to save the objects detected ids
+	
 
 	/// Save the result in a separate txt file
 	//ofstream file;

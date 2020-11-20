@@ -343,6 +343,8 @@ void labelDetectionMask( const char* outname, std::vector<float>& detectionMask,
 		matchidI=matchIds[id];
 		if(detectionMask[id] && matchidI && !detectionMapIds[id])
 		{
+			// If this the object was copied more than once, it will have a lot of others copied regions
+			//
 			if(detectionMapIds[matchidI]){
 				label = detectionMapIds[matchidI]; 
 			}

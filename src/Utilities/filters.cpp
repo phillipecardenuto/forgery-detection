@@ -343,10 +343,15 @@ void labelDetectionMask( const char* outname, std::vector<float>& detectionMask,
 		matchidI=matchIds[id];
 		if(detectionMask[id] && matchidI && !detectionMapIds[id])
 		{
-			max_label++;
+			if(detectionMapIds[matchidI]){
+				label = detectionMapIds[matchidI]; 
+			}
+			else{
+			label =++max_label;
+			}
 
-			fillObjectWithLabel(detectionMask,detectionMapIds, visualSize , id, max_label, 2);
-			fillObjectWithLabel(detectionMask,detectionMapIds, visualSize , matchidI, max_label, 2);
+			fillObjectWithLabel(detectionMask,detectionMapIds, visualSize , id, label, 2);
+			fillObjectWithLabel(detectionMask,detectionMapIds, visualSize , matchidI, label, 2);
 
 		}
 	}
